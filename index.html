@@ -1,0 +1,421 @@
+<html>
+    <head>
+        <script>
+            
+            function ev(){
+                
+                 var x = document.getElementsByClassName('input');
+                 var q1 = x[0].value;
+                 var m1 = x[1].value;
+                
+                 var sign = document.getElementById("sign").value;
+                
+               
+                 document.getElementById("start").remove();
+                 document.getElementById('calculate').remove();
+            
+                if(((-8<=Number(q1))&&(Number(q1)<=15)?1:0)||((-8<=Number(m1))&&(Number(m1)<=15)?1:0)){
+                
+                 function bitManager(binary)
+                 {
+                    while(binary.length<4)
+                    {
+                        binary="0"+binary;
+                    }
+                    return binary;
+                 }
+                 
+                 function add(a,b){
+                     var carry=0;
+                     var sum="";
+                    for(var i=a.length-1;i>=0;i--)
+                    {  
+                      
+                      if(a[i]==b[i])
+                      {   
+                          if(carry==0)
+                          {   sum="0"+sum;
+                             if(a[i]=="0")
+                             {
+                                 carry=0;
+                             }
+                             else{
+                                 carry=1;
+                             }
+                         }
+                          else{
+                            sum="1"+sum;
+                            if(a[i]=="0")
+                             {
+                                 carry=0;
+                             }
+                             else{
+                                 carry=1;
+                             }
+                          }
+                      }
+                      else{
+                          
+                          if(carry==0)
+                          {   
+                              sum="1"+sum;
+                              carry=0;
+                          }
+                          else{
+                              sum="0"+sum;
+                              carry=1;
+                          }
+                      }
+                    }
+                    return sum;}
+                 function sub(a,b){
+                     b = complement2(b);
+                     var binary = add(a,b);
+                   return binary;}
+                 function complement2(binary){
+                    var binary1='';
+                       for(var i=0;i<binary.length;i++)
+                       {
+                           if(Number(binary[i])==0){binary1=binary1+"1";}
+                           else{binary1=binary1+"0";}}
+                       binary=binary1;
+                       binary = add(binary,"0001");
+                    
+                   return binary;
+                 }
+
+                 
+                 function toBinary(s){
+                    var i=1;
+                    string='';
+                    while(i<s.length)
+                    {    
+                        string = string+s[i]; 
+                        i++;
+                    }
+                    var binary = '';
+                    
+                    binary= bitManager(parseInt(Number(string),10).toString(2));
+                
+                    if(s[0]=='-'){ binary= complement2(binary); }
+                     return binary;
+                 }
+                 function shift(a,q){
+                     
+                     var a1 = "";
+                     var q1 = "";
+                     for(var i=q.length-1; i>0;i--)
+                     {    
+                         q1=q[i]+q1;
+                     }
+                     a1 = q[0];
+                     for(var i=a.length-1;i>0;i--)
+                     {
+                         a1=a[i]+a1;
+                     } 
+                     return({
+                         a : a1,
+                         q : q1
+                     });
+                  }
+                  function signCheck(a,m){
+                       if(a[0]==m[0]){
+                           return 1;
+                       }
+                       else{
+                           return 0;
+                       }
+                  }
+                if(sign=="2"){var q = toBinary(q1);
+                           var m = toBinary(m1);
+                          if(q[0]=="1"){var a="1111";}
+                           else{var a="0000"};
+                           }
+                if(sign=="1"){var q = bitManager(parseInt(q1,10).toString(2));
+                           var m = bitManager(parseInt(m1,10).toString(2));
+                           var a = "0000";
+                           }
+                
+                  function restoringDivisionSigned(a,q,m)
+                  {  
+                    
+                     var n = q.length;
+                     i=1;
+                     var registerA = [];
+                     var registerQ = [];
+                     while(i<=n){
+                   
+                     var obj = shift(a,q);
+                     a = obj.a;
+                     q = obj.q;
+                    
+                     if(signCheck(a,m))
+                     {
+                         a1 = sub(a,m);
+                     }
+                     else{
+                         a1 = add(a,m)
+                     }
+                    
+                     if(signCheck(a1,a)||(a1=="0000")){
+                         q = q+"1";  //signCheck(a1,a)|| a1=="0000"
+                         a = a1;
+                     }
+                     else{
+                         q = q+"0";
+                     }
+                     registerA[i-1]=a;
+                     registerQ[i-1]=q;
+                    
+                     i++;
+                     }
+                    
+                     return({
+                         registerA : registerA,
+                         registerQ : registerQ
+                     });
+                  }
+                function restoringDivisionUnsigned(a,q,m){
+                    var n = q.length;
+                     i=1;
+                     var registerA = [];
+                     var registerQ = [];
+                
+                     while(i<=n){
+                        
+                        var obj = shift(a,q);
+                        a = obj.a;
+                        q = obj.q;
+                      
+                        var a1 = bitManager(parseInt((Number(parseInt(a,2).toString(10))-Number(parseInt(m,2).toString(10))),10).toString(2));
+                        
+                        if((Number(parseInt(a,2).toString(10))-Number(parseInt(m,2).toString(10)))<0)
+                        {
+                            q = q+"0";
+                        }
+                        else{
+                            a = a1;
+                            q = q+"1";
+                        }
+                        registerA[i-1]=a;
+                         registerQ[i-1]=q;
+                     
+                     i++; 
+                     }
+                      
+
+                     return({
+                         registerA : registerA,
+                         registerQ : registerQ
+                     });
+
+                }
+                
+                if(sign=="1"){var obj = restoringDivisionUnsigned(a,q,m);}
+                if(sign=="2"){ var obj = restoringDivisionSigned(a,q,m);}
+                document.getElementById('steps').innerHTML="Initialization";
+                document.getElementById('dividend').value=q;
+                document.getElementById('reminder').value=a;
+                document.getElementById('divisor').value=m;
+                var x= document.getElementById("table").insertRow();
+                   x.insertCell(0).innerHTML="Initialization";
+                   x.insertCell(1).innerHTML=a;
+                   x.insertCell(2).innerHTML=q;
+                   x.insertCell(3).innerHTML=m;
+                var registerA = obj.registerA;
+                var registerQ = obj.registerQ;
+                
+                function show(i){
+                    var step="";
+                    if(i==registerA.length-1){
+                       step="Final Step"; 
+                    }
+                    else{
+                        step="Step-"+(i+1);
+                    }
+                    document.getElementById('steps').innerHTML=step;
+                    document.getElementById('dividend').value=registerQ[i];
+                    document.getElementById('reminder').value=registerA[i];
+                   var x= document.getElementById("table").insertRow();
+                   x.insertCell(0).innerHTML=step;
+                   x.insertCell(1).innerHTML=registerA[i];
+                   x.insertCell(2).innerHTML=registerQ[i];
+                   x.insertCell(3).innerHTML=m;
+                    i++;
+                    if(i<registerA.length)
+                    {  
+                        setTimeout(show,1000,i)
+                    }
+                }
+                
+                setTimeout(show,1000,0);
+                
+                var Q = registerQ[3];
+                var A = registerA[3];
+                
+                if(Q[0]==1)
+                {
+                   decimalQ = "-"+parseInt(Number(complement2(Q)),2).toString(10);
+                }
+                else{
+                    
+                   decimalQ = ""+parseInt(Number(Q),2).toString(10);
+                }
+                if(A[0]==1)
+                {
+                   decimalA = "-"+parseInt(Number(complement2(A)),2).toString(10);
+                }
+                else{
+                    decimalA = ""+parseInt(Number(A),2).toString(10);
+                }
+                function go(){
+                document.getElementById('ans1').innerHTML ="The quotient is in Binary= "+Q+" and in Decimal= "+decimalQ;
+                document.getElementById('ans2').innerHTML ="The Reminder is in Binary= "+A+" and in Decimal= "+decimalA;}
+                
+                setTimeout(go,1000*registerQ.length);
+               
+                }
+                else{
+                    alert("enter valid inputs");
+                    window.location.reload();
+                }
+             }
+                // document.getElementsById('table1').rows[1].cells[1].innerHTML=1;
+      </script>
+      <style>
+          body{
+              position: relative;
+            
+             
+          }
+          select{ font-size:medium;
+              font-family: cursive;
+              font-weight:900;
+
+          }
+          p{  position: relative;
+              font-size:medium;
+              font-family: cursive;
+              font-weight:900;
+          }
+          #start{
+              position: relative;
+              width:100px;
+              text-align: left;
+          }
+          .input{
+              position: relative;
+              width: 126;
+              height: 40;
+              background-color: rgb(77, 73, 73);
+              color: white;
+              font-size: large;
+              font-weight: bolder;
+          }
+          .alu{
+              position: relative;
+              top: -200px;
+          }
+          
+          #steps{
+            position: relative;
+            left: 410px;
+          }
+          
+          
+          #divisor{
+              position: relative;
+              top: -310px;
+              left: -656px;
+          }
+          #reminder{
+              position: relative;
+              top: -310px;
+              left: -619px;
+          }
+          #dividend{
+              position: relative;
+              top: -389px;
+              left: 710px;
+              height : 58px;
+
+          }
+          #calculate{
+              position: relative;
+               top: -500px;
+               left: -130px;
+          }
+         
+          #divtable{
+              position: relative;
+              height: 300px;
+              width: 300px;
+              top: -550px;
+              left: 980px;
+              text-align: right;
+          }
+          #table{
+        
+          font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+           border-collapse: collapse;
+          width: 100%;
+          
+          }
+
+            #table td, #table th {
+             box-sizing: 25%;
+             border: 1px solid #ddd;
+             padding: 8px;
+            }
+
+            #table tr:nth-child(even){background-color: #f2f2f2;}
+
+            #table tr:hover {background-color: #ddd;}
+
+            #table th {
+                 padding-top: 12px;
+                 padding-bottom: 12px;
+                text-align: left;
+                background-color: #4CAF50;
+                color: white;
+                }
+
+          
+      </style>
+    </head>
+    <body> 
+        <div style="display: inline;">
+        <div id='start'>
+            
+            <p>Input :</p>
+            <select id="sign">
+                <option value="1">Unsigned</option>
+                <option value="2">Signed</option>
+            </select>
+             <p>Dividend :</p><input class='input' type='text'>
+             <p>Divisor :</p><input class='input' type='text'>
+        </div>
+        
+        <div >
+            <div >
+             <p id='steps'>Enter Input First</p>
+             <image src='restoring-hardware.png'/>
+             <input class='input' id='divisor' type='text'>
+             <input class='input' id='reminder' type='text'>
+             <input class='input' id='dividend' type='text'>
+             <button class='input' id='calculate' onclick="ev()">calculate</button>
+             </div>
+         </div>
+        <div id="divtable">
+               <table id="table">
+                <tr><th>Step</th><th>A</th><th>Q</th><th>M</th></tr>
+               </table>
+              <p id="ans1"></p>
+               <hr/>
+               <p id="ans2"> </p>
+        </div>
+          
+        </div>
+           
+    </body>
+</html>
