@@ -127,7 +127,7 @@
                        }
                   }
                 if(sign=="2"){
-                           if(q1[0]=="-"){
+                           if(q1[0]=="-" && m1[0]=="-"){
                            var q = toBinary(q1);
                            var m = toBinary(m1);
                            if(q[0]=="1"){var a="1111";}
@@ -221,7 +221,7 @@
                 
                 if(sign=="1"){var obj = restoringDivisionUnsigned(a,q,m);}
                 if(sign=="2"){ 
-                    if(q1[0]=="-"){
+                    if(q1[0]=="-"  && m1[0]=="-"){
                     var obj = restoringDivisionSigned(a,q,m);}
                     else{
                      var obj = restoringDivisionUnsigned(a,q,m);
